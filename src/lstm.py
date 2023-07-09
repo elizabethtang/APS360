@@ -16,11 +16,11 @@ class lstm_model(nn.Module):
         x = self.linear(x)
         return x
 
-def train_lstm(model, device, train_loader):
+def train_lstm(model, device, train_loader, num_epochs=40, lr=0.0003):
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0003)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     #train the model
-    num_epochs = 40
+    num_epochs = num_epochs
     loss_curve = []
     for epoch in range(num_epochs):
         for i, (inputs, labels) in enumerate(train_loader):

@@ -91,30 +91,43 @@ def get_and_save_data(dir_path):
     X_main, X_test, y_main, y_test = get_Xy_main_test_data(file_path=dir_path+'Part_1.mat')
     save_train_test_data(dir_path=dir_path, X_main=X_main, X_test=X_test, y_main=y_main, y_test=y_test)
 
-def get_train_data(dir_path, batch_size=32):
+def get_train_test_data(dir_path, timewindow=32):
     X_train, X_test, y_train, y_test = load_train_test_data(dir_path)
 
     ppg_train_conv = convert_to_2d(X_train, 0)
     ecg_train_conv = convert_to_2d(X_train, 1)
     abp_train_conv = convert_to_2d(y_train)
+    ppg_test_conv = convert_to_2d(X_test, 0)
+    ecg_test_conv = convert_to_2d(X_test, 1)
+    abp_test_conv = convert_to_2d(y_test)
 
     ppg_train_conv_scaled = (ppg_train_conv - ppg_train_conv.min())/(ppg_train_conv.max()-ppg_train_conv.min())
     ecg_train_conv_scaled = (ecg_train_conv - ecg_train_conv.min())/(ecg_train_conv.max()-ecg_train_conv.min())
     abp_train_conv_scaled = (abp_train_conv - abp_train_conv.min())/(abp_train_conv.max()-abp_train_conv.min())
+    ppg_test_conv_scaled = (ppg_test_conv - ppg_test_conv.min())/(ppg_test_conv.max()-ppg_test_conv.min())
+    ecg_test_conv_scaled = (ecg_test_conv - ecg_test_conv.min())/(ecg_test_conv.max()-ecg_test_conv.min())
+    abp_test_conv_scaled = (abp_test_conv - abp_test_conv.min())/(abp_test_conv.max()-abp_test_conv.min())
 
-    ppg_train_timeseries_scaled = convert_to_timeseries(ppg_train_conv_scaled, batch_size)
-    ecg_train_timeseries_scaled = convert_to_timeseries(ecg_train_conv_scaled, batch_size)
-    abp_train_timeseries_scaled = convert_to_timeseries(abp_train_conv_scaled, batch_size)
+    ppg_train_timeseries_scaled = convert_to_timeseries(ppg_train_conv_scaled, timewindow)
+    ecg_train_timeseries_scaled = convert_to_timeseries(ecg_train_conv_scaled, timewindow)
+    abp_train_timeseries_scaled = convert_to_timeseries(abp_train_conv_scaled, timewindow)
+    ppg_test_timeseries_scaled = convert_to_timeseries(ppg_test_conv_scaled, timewindow)
+    ecg_test_timeseries_scaled = convert_to_timeseries(ecg_test_conv_scaled, timewindow)
+    abp_test_timeseries_scaled = convert_to_timeseries(abp_test_conv_scaled, timewindow)
 
     #put ppg and ecg together to form the encoder input with shape (201554,32,2)
-    encoder_input = np.stack((ppg_train_timeseries_scaled, ecg_train_timeseries_scaled), axis=2)
+    encoder_input_train = np.stack((ppg_train_timeseries_scaled, ecg_train_timeseries_scaled), axis=2)
+    encoder_input_test = np.stack((ppg_test_timeseries_scaled, ecg_test_timeseries_scaled), axis=2)
+
 
     #stack the abp as well to form the decoder output with shape (201554,32,1)
-    decoder_output = np.expand_dims(abp_train_timeseries_scaled, axis=2)
+    decoder_output_train = np.expand_dims(abp_train_timeseries_scaled, axis=2)
+    decoder_output_test = np.expand_dims(abp_test_timeseries_scaled, axis=2)
 
-    train_data = TensorDataset(torch.from_numpy(encoder_input).float(), torch.from_numpy(decoder_output).float())
+    train_data = TensorDataset(torch.from_numpy(encoder_input_train).float(), torch.from_numpy(decoder_output_train).float())
+    test_data = TensorDataset(torch.from_numpy(encoder_input_test).float(), torch.from_numpy(decoder_output_test).float())
     
-    return train_data, encoder_input, decoder_output
+    return train_data, encoder_input_train, decoder_output_train, test_data, encoder_input_test, decoder_output_test
 
 def main():
     get_and_save_data(dir_path=DATA)
