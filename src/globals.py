@@ -1,2 +1,0 @@
-# file paths
-DATA = 'data/'
