@@ -1,0 +1,2 @@
+# file paths
+DATA = 'data/'
