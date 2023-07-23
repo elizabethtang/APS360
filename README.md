@@ -5,4 +5,4 @@
 To install all the necessary python libraries, run the following in terminal:
 
     cd path/to/APS360Project
-    pip install -r requirements.txt
+    py -m pip install -r requirements.txt
