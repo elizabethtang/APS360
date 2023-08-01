@@ -76,6 +76,8 @@ def train_lstm(model, device, train_loader, num_epochs=40, lr=0.0003, encoder_in
                     train_mse, test_mse = get_mse(model, encoder_input_train, decoder_output_train, encoder_input_test, decoder_output_test)
                     train_loss.append(train_mse)
                     test_loss.append(test_mse)
+    
+    torch.save(model.state_dict(), './models/model_1.pt')
 
     if encoder_input_test is not None and decoder_output_test is not None:
         return loss_curve, train_loss, test_loss
