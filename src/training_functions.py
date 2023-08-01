@@ -127,8 +127,11 @@ def smooth_data(model, encoder_input_test, decoder_output_test):
     output_testset = model(torch.from_numpy(encoder_input_test[0:1280]).to(device).float())
     output_testset_1d = convert_to_1d(output_testset.cpu().detach().numpy())
 
-    encoder_input_test_1d = convert_to_1d(encoder_input_test)[:len(output_testset_1d)]
+    encoder_input_test_ppg_ecg = np.transpose(encoder_input_test, (2, 1, 0))
+
+    encoder_input_test_ppg_1d = encoder_input_test_ppg_ecg[0][0][:len(output_testset_1d)]
+    encoder_input_test_ecg_1d = encoder_input_test_ppg_ecg[1][0][:len(output_testset_1d)]
     decoder_output_test_1d = convert_to_1d(decoder_output_test)[:len(output_testset_1d)]
     smooth_output_testset_1d = savitzky_golay(output_testset_1d, 25, 3) * 0.75
 
-    return encoder_input_test_1d, decoder_output_test_1d, smooth_output_testset_1d
+    return encoder_input_test_ppg_1d, encoder_input_test_ecg_1d, decoder_output_test_1d, smooth_output_testset_1d
