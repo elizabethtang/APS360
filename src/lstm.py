@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
 
@@ -44,5 +45,11 @@ def train_lstm(model, device, train_loader, num_epochs=40, lr=0.0003):
             if (i+1) % 100 == 0:
                 print('Epoch: {}/{}, Step: {}/{}, Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, len(train_loader), loss.item()))
                 loss_curve.append(loss.item())
+            
+            model_path = "models/" + get_model_name(model.name, train_loader.batch_size, lr, epoch)
+        torch.save(model.state_dict(), model_path)
     
     return loss_curve
+
+def get_model_name(name, batch_size, learning_rate, epoch):
+    return  "model_{0}_bs{1}_lr{2}_epoch{3}".format(name, batch_size, learning_rate, epoch)
