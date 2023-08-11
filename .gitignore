@@ -1,4 +1,6 @@
 data/
+models/
 src/__pycache__
 demos/
 models/
+
